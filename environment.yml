@@ -14,5 +14,10 @@ dependencies:
   - jupyter
   - flake8
   - wordcloud
+  - beautifulsoup4
   - catboost
   - python-dotenv>=0.5.1
+  - pip
+  - pip:
+      - afinn
+      - vaderSentiment
