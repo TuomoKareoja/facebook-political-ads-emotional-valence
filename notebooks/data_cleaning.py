@@ -146,6 +146,10 @@ plt.show()
 
 # %% political probability distribution and connection to votes
 
+sns.distplot(df.political_probability)
+plt.title("Distribution of political probability")
+plt.plot()
+
 ax = sns.lmplot(
     x="political", y="political_probability", scatter_kws={"alpha": 0.2}, data=df
 )
@@ -175,6 +179,43 @@ plt.xlabel("Number of not-political votes")
 plt.xlim([0, 35])
 plt.ylim([0, 1])
 plt.show()
+
+# %% [markdown]
+
+# # Is it really political?
+#
+# * The percent of ads that have as much or more political than not political votes
+# goes up when the predicted politicalness goes up. This is as expected
+# * We can cut the adds below 0.99 probability and still lose only few ads.
+# This should make the dataset more uniformly about actual political adds
+# * We also should add a check that the add has at least as many political
+# as not political votes. Not more because so many adds have zero votes
+
+# %%
+
+sns.distplot(df.political_probability, label="Distribution of political probability")
+sns.lineplot(
+    np.round(df.political_probability, 2),
+    (df.political >= df.not_political) * 100,
+    label="political votes >= not political votes",
+)
+plt.legend()
+plt.title("Distribution of political probability")
+plt.show()
+
+sns.distplot(
+    df.political_probability, bins=100, label="Distribution of political probability"
+)
+sns.lineplot(
+    np.round(df.political_probability, 2),
+    (df.political >= df.not_political) * 100,
+    label="political votes >= not political votes",
+)
+plt.legend()
+plt.title("Distribution of political probability 0.9-1")
+plt.xlim([0.9, 1])
+plt.show()
+
 
 # %% [markdown]
 
@@ -262,6 +303,84 @@ plt.show()
 
 # %% [markdown]
 
+# # Length of the message
+#
+# * The average wordcount is 312 words and even the median is 210. The messages are
+# really long compared to normal adds (from personal experience)
+# * There are some extremely long messages with max word count being 13465, which
+# is really a length comparable to a long news article (who is this for)
+# * Minimum word length is 3
+# * Because the length of the message varies so much we should
+# take this into account in the afinn sentiment analysis. A message
+# with 2000 words and one highly positive word should not get a high score
+
+# %%
+
+
+print(df.clean_message.str.len().describe())
+print("median wordcount:", df.clean_message.str.len().median())
+sns.distplot(df.clean_message.str.len(), bins=100)
+plt.title("Distribution of the message wordcount")
+plt.show()
+
+# %% [markdown]
+
+# * Shortest message is TBD and seems like a placeholder
+# * longest mesage is an excerpt from a novel and definitely not
+# a political add
+
+# %%
+
+print("shortest message:")
+print(list(df[df.clean_message.str.len() == 3]["clean_message"]))
+print("")
+
+print("longest message:")
+print(list(df[df.clean_message.str.len() == 13563]["clean_message"]))
+print("")
+
+# %% [markdown]
+
+# # Relation of message length to its politicalness
+#
+# * When the length of the message grows from 0 to 1000, the proportion
+# of ads with equal or more political than not political votes increases
+# * adds which are very long, are predicted as political, but have
+# their votes all over the place (much variation because of small number
+# of votes?)
+# %%
+
+sns.lineplot(
+    df.clean_message.str.len().round(-1),
+    df.political_probability * 100,
+    label="political_probability",
+)
+sns.lineplot(
+    df.clean_message.str.len().round(-1),
+    (df.political >= df.not_political) * 100,
+    label="political votes >= not political votes",
+)
+plt.ylabel('%')
+plt.legend()
+# plt.title("Distribution of political probability")
+plt.show()
+
+# %% [markdown]
+
+# # Actual look at the long messages
+#
+# * These seem mostly political. Lets keep these in the analysis
+
+# %%
+
+for message in df[df.clean_message.str.len() > 2000]["clean_message"]:
+    print(message)
+    print("")
+
+
+
+# %% [markdown]
+
 # # Who is the advertiser
 #
 # * About information as the same as title
@@ -297,6 +416,7 @@ who_paid_wc = WordCloud(background_color="white").generate(
 plt.imshow(who_paid_wc, interpolation="bilinear")
 plt.title("Who paid?")
 plt.show()
+
 
 # %% [markdown]
 

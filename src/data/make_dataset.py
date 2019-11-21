@@ -7,7 +7,6 @@ import pandas as pd
 from afinn import Afinn
 from dotenv import find_dotenv, load_dotenv
 import src.text.process_text as process_text
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 
 def main():
@@ -38,8 +37,11 @@ def main():
         # nrows=100,
     )
 
-    logger.info("Dropping adds where predicted probability of being political < 0.7")
-    df.query("political_probability >= 0.7", inplace=True)
+    logger.info("Dropping adds where predicted probability of being political < 0.99")
+    df.query("political_probability >= 0.99", inplace=True)
+
+    logger.info("Dropping adds where more not political votes than political votes")
+    df.query("political < not_political", inplace=True)
 
     logger.info("Add columns for days up")
     df["created_at"] = pd.to_datetime(df.created_at)
@@ -60,11 +62,13 @@ def main():
     df["title"] = [process_text.strip_html_tags(str(title)) for title in df["title"]]
 
     logger.info("Coding text sentiment")
-    af = Afinn()
+    af = Afinn(emoticons=True)
     df["sentiment_afinn"] = [af.score(text) for text in df["message"]]
-    analyzer = SentimentIntensityAnalyzer()
-    df["sentiment_vader"] = [
-        analyzer.polarity_scores(message)["compound"] for message in df["message"]
+    # dividing afinn score by the words count to make longer text
+    # less extreme in their sentiment
+    df["sentiment_afinn_norm"] = [
+        sentiment / len(text.split())
+        for sentiment, text in zip(df["sentiment_afinn"], df["message"])
     ]
 
     logger.info("Saving processed data")
