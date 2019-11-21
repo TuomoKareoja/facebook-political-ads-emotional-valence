@@ -129,7 +129,7 @@ ax.fig.text(
     fontsize=11,
 )
 plt.ylabel("Number of not-political votes")
-plt.ylabel("Number of political votes")
+plt.xlabel("Number of political votes")
 plt.xlim([0, 60])
 plt.ylim([0, 35])
 plt.show()
@@ -235,7 +235,10 @@ plt.show()
 #
 # * There seems to be some problem with the data in the beginning of 2019
 # as there almost ads created in jan, feb and apr
-# * Lets keep only the data up to end of 2019 and focus on 2018 november elections
+# * To make analysis more targeted lets take the period of september 15. to
+# 15. november to catch the 2018 election period (and few days after that because
+# we see that although the elections were help november 6. the spike in new ads
+# continues past november 11.)
 
 # %%
 

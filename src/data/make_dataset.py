@@ -47,8 +47,11 @@ def main():
     df["created_at"] = pd.to_datetime(df.created_at)
     df["updated_at"] = pd.to_datetime(df.updated_at)
 
-    logger.info("Keeping only 2018 data")
-    df = df[df["created_at"].dt.year == 2018]
+    logger.info("Keeping only data from election period 2018")
+    df = df[
+        (df["created_at"].dt.date >= pd.Timestamp("2018-09-15"))
+        & (df["created_at"].dt.date <= pd.Timestamp("2018-11-15"))
+    ]
 
     logger.info("Calculating the days the ad was up")
     df = df.assign(days_up=(df["updated_at"] - df["created_at"]).dt.days)
@@ -60,15 +63,17 @@ def main():
     df["message"] = [process_text.strip_html_tags(message) for message in df["message"]]
     # str() deals with missing values that are actually of type float!
     df["title"] = [process_text.strip_html_tags(str(title)) for title in df["title"]]
+    # dropping where no message
+    df = df[df["message"].str.len() > 0]
 
     logger.info("Coding text sentiment")
     af = Afinn(emoticons=True)
-    df["sentiment_afinn"] = [af.score(text) for text in df["message"]]
+    df["sentiment"] = [af.score(text) for text in df["message"]]
     # dividing afinn score by the words count to make longer text
     # less extreme in their sentiment
-    df["sentiment_afinn_norm"] = [
+    df["sentiment_norm"] = [
         sentiment / len(text.split())
-        for sentiment, text in zip(df["sentiment_afinn"], df["message"])
+        for sentiment, text in zip(df["sentiment"], df["message"])
     ]
 
     logger.info("Saving processed data")
