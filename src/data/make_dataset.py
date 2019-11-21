@@ -37,8 +37,8 @@ def main():
         # nrows=100,
     )
 
-    logger.info("Dropping adds where predicted probability of being political < 0.99")
-    df.query("political_probability >= 0.99", inplace=True)
+    logger.info("Dropping adds where predicted probability of being political < 0.90")
+    df.query("political_probability >= 0.90", inplace=True)
 
     logger.info("Dropping adds where more not political votes than political votes")
     df.query("political < not_political", inplace=True)

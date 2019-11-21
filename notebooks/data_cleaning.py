@@ -141,6 +141,9 @@ plt.show()
 # * Both votes correlated positively to probability of being political
 # * There are some adds where predicted probability is less than 0.7, we should drop
 # these as these are outliers compared to rest of the data
+# * at around 0.9 there is an inflection point. If we drop ads that have lower than
+# 90 % predicted propability of being political it should make the dataset more
+# uniformly about actual political adds without losing much data
 # * There is a possibility of actually dropping even more adds based
 # on predicted probability. This is something that we should keep in mind
 
@@ -148,7 +151,18 @@ plt.show()
 
 sns.distplot(df.political_probability)
 plt.title("Distribution of political probability")
-plt.plot()
+plt.show()
+
+political_prob_cumulative = (
+    np.cumsum(df.political_probability.value_counts().sort_index(ascending=False)) * 100 / len(df)
+)
+political_prob_cumulative.plot()
+plt.ylabel("% highder or equal political probability")
+plt.xlabel("Political probability")
+plt.title('Cumulative distribution of political probability')
+# plt.ylim([0, 100])
+# plt.xlim([0, 30])
+plt.show()
 
 ax = sns.lmplot(
     x="political", y="political_probability", scatter_kws={"alpha": 0.2}, data=df
@@ -186,8 +200,6 @@ plt.show()
 #
 # * The percent of ads that have as much or more political than not political votes
 # goes up when the predicted politicalness goes up. This is as expected
-# * We can cut the adds below 0.99 probability and still lose only few ads.
-# This should make the dataset more uniformly about actual political adds
 # * We also should add a check that the add has at least as many political
 # as not political votes. Not more because so many adds have zero votes
 
