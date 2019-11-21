@@ -41,7 +41,7 @@ def main():
     df.query("political_probability >= 0.90", inplace=True)
 
     logger.info("Dropping adds where more not political votes than political votes")
-    df.query("political < not_political", inplace=True)
+    df.query("political >= not_political", inplace=True)
 
     logger.info("Add columns for days up")
     df["created_at"] = pd.to_datetime(df.created_at)
