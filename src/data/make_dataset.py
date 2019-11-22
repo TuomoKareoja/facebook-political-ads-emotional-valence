@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 import pandas as pd
+import numpy as np
 from afinn import Afinn
 from dotenv import find_dotenv, load_dotenv
 import src.text.process_text as process_text
@@ -74,6 +75,15 @@ def main():
     df["sentiment_norm"] = [
         sentiment / len(text.split())
         for sentiment, text in zip(df["sentiment"], df["message"])
+    ]
+    # absolute value of the sentiment. Emotionally ladden messages
+    # get high score regardles of valence
+    df["sentiment_abs"] = [
+        np.sum([np.absolute(af.score(word)) for word in text.split()]) for text in df["message"]
+    ]
+    df["sentiment_abs_norm"] = [
+        sentiment_abs / len(text.split())
+        for sentiment_abs, text in zip(df["sentiment_abs"], df["message"])
     ]
 
     logger.info("Saving processed data")
