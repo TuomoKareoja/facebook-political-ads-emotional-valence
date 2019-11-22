@@ -149,7 +149,7 @@ plt.scatter(
     # s=df_sample.impressions * 100,
     alpha=0.01,
 )
-plt.xticks(rotation=90) 
+plt.xticks(rotation=90)
 plt.ylim([-0.5, 0.5])
 plt.xlim([pd.Timestamp("2018-09-15"), pd.Timestamp("2018-11-15")])
 plt.show()
@@ -179,7 +179,7 @@ plt.scatter(
     c=df_sample.sentiment_norm,
     # s=df_sample.impressions * 100,
     alpha=0.01,
-) 
+)
 plt.ylim([-0.5, 0.5])
 plt.xlim([0, 1000])
 plt.xticks(rotation=90)
@@ -187,10 +187,7 @@ plt.show()
 
 # %%
 
-sns.boxplot(
-    x=df.targetedness,
-    y=df.sentiment_norm,
-) 
+sns.boxplot(x=df.targetedness, y=df.sentiment_norm)
 plt.ylim([-0.5, 0.5])
 # plt.xticks(rotation=90)
 plt.show()
@@ -198,3 +195,40 @@ plt.show()
 
 # %%
 
+df.dtypes
+
+# %%
+
+df.advertiser.value_counts().plot.bar()
+
+# %%
+df.paid_for_by.value_counts().plot.bar()
+
+# %%
+
+top_advertisers = df.advertiser.value_counts().index[:10]
+top_payers = df.paid_for_by.value_counts().index[:10]
+
+# %%
+
+sns.boxplot(
+    x="advertiser", y="sentiment_norm", data=df[df["advertiser"].isin(top_advertisers)]
+)
+plt.show()
+sns.countplot(x="advertiser", data=df[df["advertiser"].isin(top_advertisers)])
+plt.show()
+
+# %%
+
+sns.boxplot(
+    x="paid_for_by", y="sentiment_norm", data=df[df["paid_for_by"].isin(top_payers)]
+)
+plt.xticks(rotation=90)
+plt.show()
+
+sns.countplot(x="paid_for_by", data=df[df["paid_for_by"].isin(top_payers)])
+plt.xticks(rotation=90)
+plt.show()
+
+
+# %%
